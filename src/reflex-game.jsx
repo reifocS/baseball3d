@@ -15,7 +15,7 @@ const Ball = ({ batRef, incrementBallCount, velocityMultiplier }) => {
   const [ballVelocity, setBallVelocity] = useState(initialVelocity);
   const [isInDelay, setIsInDelay] = useState(false);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (isInDelay) return;
 
     if (ballPosition.z > 10 || ballPosition.z < -10) {
@@ -95,7 +95,7 @@ const BaseballBat = ({ isSwinging, batRef }) => {
     Math.PI / 4
   );
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (isSwinging) {
       setSwingPhase((prev) => Math.min(prev + delta / swingDuration, 1));
     } else {
@@ -136,7 +136,7 @@ const BaseballBat = ({ isSwinging, batRef }) => {
 const Game = () => {
   const [gameState, setGameState] = useState("ready");
   const [isSwinging, setIsSwinging] = useState(false);
-  const [ballCount, setBallCount] = useState(0);
+  const [, setBallCount] = useState(0);
   const maxBalls = 10;
   const { camera } = useThree();
   const batRef = useRef();
@@ -206,7 +206,7 @@ const Game = () => {
           setGameState={setGameState}
           batRef={batRef}
           incrementBallCount={incrementBallCount}
-          velocityMultiplier={velocityMultiplier} // Pass the multiplier to Ball component
+          velocityMultiplier={velocityMultiplier}
         />
       )}
 
