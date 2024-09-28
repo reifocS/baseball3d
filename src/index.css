@@ -1,0 +1,15 @@
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.bg-black {
+  background-color: black;
+}
+
+.h-screen {
+  height: 100vh;
+}
