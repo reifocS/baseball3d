@@ -1,17 +1,11 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Box, Sphere, Text, Html, Environment } from "@react-three/drei";
+import { Box, Sphere, Html, Environment } from "@react-three/drei";
 import * as THREE from "three";
 
-const Ball = ({
-  setScore,
-  setGameState,
-  batRef,
-  incrementBallCount,
-  velocityMultiplier,
-}) => {
+const Ball = ({ batRef, incrementBallCount, velocityMultiplier }) => {
   const ballRef = useRef();
   const initialPosition = new THREE.Vector3(0, 1.5, -10);
   const [ballPosition, setBallPosition] = useState(initialPosition);
@@ -56,7 +50,6 @@ const Ball = ({
       const distance = newPosition.distanceTo(batTipPosition);
 
       if (distance < 0.3) {
-        setScore((prev) => prev + 1);
         // Calculate bounce direction
         const hitDirection = new THREE.Vector3()
           .subVectors(newPosition, batTipPosition)
@@ -141,7 +134,6 @@ const BaseballBat = ({ isSwinging, batRef }) => {
 };
 
 const Game = () => {
-  const [score, setScore] = useState(0);
   const [gameState, setGameState] = useState("ready");
   const [isSwinging, setIsSwinging] = useState(false);
   const [ballCount, setBallCount] = useState(0);
@@ -158,7 +150,6 @@ const Game = () => {
   const startGame = () => {
     setGameState("playing");
     setBallCount(0);
-    setScore(0);
     setVelocityMultiplier(1); // Reset velocity multiplier
   };
 
@@ -212,7 +203,6 @@ const Game = () => {
 
       {gameState === "playing" && (
         <Ball
-          setScore={setScore}
           setGameState={setGameState}
           batRef={batRef}
           incrementBallCount={incrementBallCount}
@@ -223,9 +213,7 @@ const Game = () => {
       {gameState === "ended" && (
         <Html center>
           <div className="text-center">
-            <p className="mb-4">
-              Your final score: {score} / {maxBalls}
-            </p>
+            <p className="mb-4">Game ended!</p>
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={startGame}
