@@ -19,14 +19,21 @@ const Ball = ({
     velocityMultiplier
   );
   const [ballVelocity, setBallVelocity] = useState(initialVelocity);
+  const [isInDelay, setIsInDelay] = useState(false);
 
   useFrame((state, delta) => {
+    if (isInDelay) return;
+
     if (ballPosition.z > 10 || ballPosition.z < -10) {
-      setBallPosition(initialPosition.clone());
-      setBallVelocity(
-        new THREE.Vector3(0, 0, 10).multiplyScalar(velocityMultiplier)
-      );
-      incrementBallCount();
+      setIsInDelay(true);
+      setTimeout(() => {
+        setBallPosition(initialPosition.clone());
+        setBallVelocity(
+          new THREE.Vector3(0, 0, 10).multiplyScalar(velocityMultiplier)
+        );
+        incrementBallCount();
+        setIsInDelay(false);
+      }, 2000); // 2-second delay
       return;
     }
 
@@ -64,13 +71,23 @@ const Ball = ({
     }
   });
 
+  if (isInDelay) {
+    return (
+      <Sphere
+        ref={ballRef}
+        args={[0.1, 32, 32]}
+        position={ballPosition.toArray()}
+      />
+    );
+  }
+
   return (
     <Sphere
       ref={ballRef}
       args={[0.1, 32, 32]}
       position={ballPosition.toArray()}
     >
-      <meshStandardMaterial color={"white"} />
+      <meshStandardMaterial color={"red"} />
     </Sphere>
   );
 };
@@ -128,6 +145,7 @@ const Game = () => {
   const [gameState, setGameState] = useState("ready");
   const [isSwinging, setIsSwinging] = useState(false);
   const [ballCount, setBallCount] = useState(0);
+  const maxBalls = 10;
   const { camera } = useThree();
   const batRef = useRef();
   const [velocityMultiplier, setVelocityMultiplier] = useState(1);
@@ -153,12 +171,13 @@ const Game = () => {
 
   const incrementBallCount = () => {
     setBallCount((prev) => {
-      if (prev + 1 >= 10) {
+      if (prev + 1 >= maxBalls) {
         setGameState("ended");
+        return prev + 1;
       }
       return prev + 1;
     });
-    setVelocityMultiplier((prev) => prev + 0.5); // Increase velocity multiplier
+    setVelocityMultiplier((prev) => prev + 0.4); // Increase velocity multiplier
   };
 
   return (
@@ -167,7 +186,7 @@ const Game = () => {
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} />
 
-      <Box args={[20, 0.1, 20]} position={[0, -1, 0]}>
+      <Box args={[20, 0.1, 200]} position={[0, -1, 0]}>
         <meshStandardMaterial color="green" />
       </Box>
 
@@ -180,7 +199,7 @@ const Game = () => {
             <p className="mb-4">
               Click to swing when the ball is close to the bat!
             </p>
-            <p className="mb-4">You have 10 balls to hit. Good luck!</p>
+            <p className="mb-4">You have {maxBalls} balls to hit. Good luck!</p>
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={startGame}
@@ -204,8 +223,9 @@ const Game = () => {
       {gameState === "ended" && (
         <Html center>
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
-            <p className="mb-4">Your final score: {score} / 10</p>
+            <p className="mb-4">
+              Your final score: {score} / {maxBalls}
+            </p>
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={startGame}
@@ -215,16 +235,6 @@ const Game = () => {
           </div>
         </Html>
       )}
-
-      <Text
-        position={[0, 3, 0]}
-        color="black"
-        fontSize={0.5}
-        anchorX="center"
-        anchorY="middle"
-      >
-        Score: {score} | Balls: {ballCount} / 10
-      </Text>
 
       {/* Invisible plane for click detection */}
       <mesh position={[0, 0, 0]} onClick={handleSwing}>
